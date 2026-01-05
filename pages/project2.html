@@ -1,0 +1,116 @@
+<div class="chat-area">
+    <div class="chat-bubble user">수상 요약</div>
+    <div class="chat-bubble ai">
+        IJCAI 2024 VRD-IU Challenge 의 Track A: Key Information Extraction 부분에서 <strong>최종 3위</strong>를 수상하였습니다. 
+        3인으로 구성된 팀에서 모델 설계 및 학습을 주도하였고, 제안 모델의 우수성을 인정받아 상위 입상자 자격으로 <strong>IJCAI 워크숍에 공식 초청되어 구두 발표</strong>를 진행하였습니다.
+        <ul>
+        <li>Paper(Contributed to Track A: Team gcu): <a href="https://doi.org/10.24963/ijcai.2025/1258" target='_blank'> https://doi.org/10.24963/ijcai.2025/1258</a></li>
+        <li>Dataset: <a href="https://www.kaggle.com/competitions/vrd-iu2024-tracka/data" target='_blank'>Kaggle VRD-IU 2024 Data</a></li>
+        <li>Code: <a href="https://colab.research.google.com/drive/15eMQeM7rOgj7eJiIwFKQIdTJ01_tkAXZ" target='_blank'>Google Colab으로 열기</a></li>
+        </ul>     
+    </div>
+    <div class="chat-bubble user">챌린지 과제</div>
+    <div class="chat-bubble ai">
+        <strong>VRD-IU: Track A</strong> 대회의 목표는 자연어 질의와 문서 이미지, 그리고 문서 내 레이아웃 요소인 <strong>관심 영역(RoI)</strong>들이 주어졌을 때, 질문에 대한 정답을 포함하고 있는 <strong>RoI의 인덱스(Index)</strong>를 정확히 예측하는 모델을 개발하는 것입니다.<br/><br/>
+        아래 그림 예시와 같이, "Company Name/Scheme"이라는 <span class="highlight-red">자연어 질의(붉은색 영역)</span>에 대해 문서 내 여러 RoI 중 "India Resources Limited"라는 <span class="highlight-green">정답 값(초록색 영역)</span>이 위치한 인덱스를 찾아내야 합니다.
+    </div>
+    <img src="./img/research/award1-tracka-data.png"/>
+    <div class="chat-bubble user">접근 방식</div>
+    <div class="chat-bubble ai">
+        문서 이미지를 다룰 때, <strong>시각 및 위치 정보뿐만 아니라 텍스트 정보 모두 중요하다고 판단</strong>하였습니다.
+        따라서 사전학습된 Vision-Language Encoder 모델 중 하나인 <strong>LXMERT 모델을 기반으로 문서 이미지의 RoI 객체의 시각 및 텍스트 정보와 위치 정보를 같이 학습</strong>하는 트랜스포머 모델을 설계하였습니다.
+
+        <ol>
+        <li><strong>이종 특징 추출 (Heterogeneous Feature Extraction)</strong></li>
+        <ul>
+            <li>Visual Feature: 각 RoI 영역을 Crop하여 ResNet-101을 통해 시각적 특징(V<sub>i</sub>) 추출</li>
+            <li>Textual Feature: OCR된 텍스트 정보를 DeBERTa-v3-large에 통과시켜 문맥이 반영된 임베딩(T<sub>i</sub>) 획득</li>
+            <li>RoI Feature: 각 RoI 객체별로 [V<sub>i</sub>;T<sub>i</sub>]을 연결(Concat)하여 RoI 객체별 특징 벡터로 활용</li>
+        </ul>
+        <li><strong>Cross-Modality 융합 (Feature Fusion)</strong></li>
+        <ul>
+            <li>Text Encoder: 질문(Question Text)을 입력받아 언어적 문맥을 파악합니다.</li>
+            <li>Vision Object & Text Encoder: RoI 객체별 특징 벡터를 기반으로 문서 내 객체 관계 모델링</li>
+            <li>Cross Encoder: 질문과 RoI 객체들 간의 Cross-Attention을 수행하여, 질문이 지칭하는 정보가 어떤 RoI에 위치하는지 상호 참조합니다.</li>
+            <li>Classifier: 각 RoI의 최종 출력 벡터를 Classifier에 전달하여 질문과 관련된 RoI Index 예측</li>
+        </ul>
+        </ol>
+    </div>
+    <img src="./img/research/award1-tracka.png"/>
+    <div class="chat-bubble user">실험 결과</div>
+    <div class="chat-bubble ai">
+        제안 모델은 Private Leaderboard에서 F1-Score 0.9695점을 기록하며 전체 12팀 중 <strong>3위</strong>를 달성하였습니다.<br/>
+        <div class="table-container">
+            <table class="academic-table rank-first">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Team</th>
+                        <th>Test<sub>public</sub></th>
+                        <th>Test<sub>private</sub></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Team1</td>
+                        <td>1.0000</td>
+                        <td>1.0000</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Team2</td>
+                        <td>1.0000</td>
+                        <td>0.9793</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><strong>Team3(ours)</strong></td>
+                        <td>0.9967</td>
+                        <td>0.9695</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="table-caption">Table 1: Performance comparison for main results</div>
+            <br/>
+            시각적 특징만 사용하는 LXMERT 모델 대비 <strong>+0.13점</strong> 이상의 성능 향상을 기록하여 제안 모델의 우수성을 입증하였습니다.<br/>
+            <table class="academic-table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Test<sub>public</sub></th>
+                        <th>Test<sub>private</sub></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Official Baseline(BERT)</td>
+                        <td>0.5401</td>
+                        <td>0.5040</td>
+                    </tr>
+                    <tr>
+                        <td>VisualBERT</td>
+                        <td>0.9662</td>
+                        <td>0.5809</td>
+                    </tr>
+                    <tr>
+                        <td>LXMERT(Visual feature only)</td>
+                        <td>0.9930</td>
+                        <td>0.8316</td>
+                    </tr>
+                    <tr>
+                        <td>Ours(Early feature sum)</td>
+                        <td>0.9953</td>
+                        <td>0.9424</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Ours(Proposed)</strong></td>
+                        <td><strong>0.9967</strong></td>
+                        <td><strong>0.9695</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="table-caption">Table 2: Ablation Study on feature utilization</div>
+        </div>
+    </div>
+</div>

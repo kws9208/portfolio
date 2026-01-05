@@ -1,0 +1,50 @@
+:root {
+  /* Dark Theme (Default) */
+  --color-background: #36393f;
+  --color-surface-1: #2f3136; /* sidebar, header */
+  --color-surface-2: #40444b; /* chat bubbles, inputs, cards */
+  --color-surface-hover: #4f545c;
+  --color-surface-active: #4446ad;
+  
+  --color-text-primary: #dcddde;
+  --color-text-secondary: #96989d;
+  --color-text-on-accent: #ffffff;
+
+  --color-accent-user: #4446ad;
+  --color-accent-user-text: #ffffff;
+  
+  --color-border: #2f3136;
+  --color-table-border: #5f6368;
+  --color-icon-filter: brightness(0) invert(1);
+  --color-scrollbar-thumb: #888;
+  --color-scrollbar-thumb-hover: #AAAAAA;
+  --color-highlight-red: #FF5555;
+  --color-highlight-green: #55FF55;
+
+  --color-modal-overlay: rgba(0, 0, 0, 0.5);
+  --color-shadow-light: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode {
+  /* Light Theme */
+  --color-background: #f8f9fa;
+  --color-surface-1: #ffffff; /* sidebar, header */
+  --color-surface-2: #e9ecef; /* chat bubbles, inputs, cards */
+  --color-surface-hover: #dee2e6;
+  --color-surface-active: #4446adff;
+
+  --color-text-primary: #212529;
+  --color-text-secondary: #5c677d;
+  --color-text-on-accent: #ffffff;
+
+  --color-accent-user: #4446adff;
+  --color-accent-user-text: #ffffff;
+  
+  --color-border: #dee2e6;
+  --color-table-border: #ced4da;
+  --color-icon-filter: none;
+  --color-scrollbar-thumb: #aaa;
+  --color-scrollbar-thumb-hover: #707070;
+  --color-highlight-red: #ff0000;
+  --color-highlight-green: #009630;
+}

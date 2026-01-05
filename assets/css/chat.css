@@ -1,0 +1,227 @@
+.main-wrapper {
+    position: absolute;
+    width: calc(100% - 260px);
+    margin-left: 260px;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#main-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    min-height: 0;
+    height: 100%;
+    overflow-y: auto;
+    flex-grow: 1;
+    flex-direction: column;
+    overflow-y: auto;
+    visibility: visible;
+    padding-right: 3px;
+}
+
+#main-content.rendering-math {
+    visibility: hidden;
+}
+
+.chat-area {
+    padding: 20px 40px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 768px;
+    margin: 0 auto;
+}
+
+.chat-bubble {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    max-width: 80%;
+    line-height: 1.6;
+}
+
+.chat-bubble.user {
+    background-color: var(--color-accent-user);
+    color: var(--color-accent-user-text);
+    margin-left: auto;
+    align-self: flex-end;
+    font-weight: 500;
+}
+
+.chat-bubble.ai {
+    background-color: var(--color-surface-2);
+    color: var(--color-text-primary);
+    align-self: flex-start;
+}
+
+.suggestion-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 5px;
+    flex-wrap: wrap;
+}
+
+.suggestion-button {
+    background-color: var(--color-surface-2);
+    color: var(--color-text-primary);
+    padding: 9px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+a.suggestion-button {
+    text-decoration: none;
+    color: var(--color-text-primary);
+}
+
+.highlight-red {
+  font-weight: bold;
+  color: var(--color-highlight-red);
+}
+
+.highlight-green {
+  font-weight: bold;
+  color: var(--color-highlight-green);
+}
+
+.chat-bubble.ai .MathJax_Display span[style*="color: red;"] {
+  color: var(--color-highlight-red) !important;
+}
+
+.chat-area > img.profile {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px var(--color-shadow-light);
+    border: 2px solid var(--color-text-on-accent);
+    object-fit: cover;
+    margin: 10px 0;
+}
+
+.chat-area > img:not(.profile){
+    width: 60%;
+    height: 60%;
+    border-radius: 8px;
+    max-width: 100%;
+    cursor: zoom-in;
+}
+
+#image-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: var(--color-modal-overlay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+}
+
+#image-modal-content {
+    margin: auto;
+    display: block;
+    max-width: 60%;
+    max-height: 60%;
+    animation-name: zoom;
+    animation-duration: 0.3s;
+    filter: none !important;
+    cursor: zoom-out;
+}
+
+@keyframes zoom {
+    from {transform: scale(0.5)}
+    to {transform: scale(1)}
+}
+
+#image-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: var(--color-text-on-accent);
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+#image-modal-close:hover,
+#image-modal-close:focus {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+}
+
+.table-container {
+    margin: 12px 0;
+    border-radius: 8px;
+}
+.academic-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--color-text-primary);
+    font-size: 10px;
+    border-top: 2px solid var(--color-table-border);
+    border-bottom: 2px solid var(--color-table-border);
+}
+.academic-table th, .academic-table td {
+    padding: 5px 5px;
+    border: none;
+    text-align: center;
+}
+.academic-table thead {
+    background-color: var(--color-surface-2);
+}
+.academic-table thead tr:last-child {
+    border-bottom: 1px solid var(--color-table-border);
+}
+.academic-table th {
+    text-align: center;
+    font-weight: 600;
+}
+.academic-table tbody tr {
+    background-color: var(--color-surface-2);
+}
+.academic-table tbody td:first-child {
+    text-align: left;
+    font-weight: 500;
+}
+.academic-table strong {
+    color: var(--color-text-primary);
+    font-weight: 700;
+}
+
+#main-content::-webkit-scrollbar {
+    width: 15px;
+    height: 10px;
+}
+
+#main-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#main-content::-webkit-scrollbar-thumb {
+    min-height: 30px;
+    max-height: 50px;
+    background-color: var(--color-scrollbar-thumb);
+    border-radius: 10px;
+    border: 3px solid var(--color-background);
+    background-clip: padding-box;
+}
+
+#main-content::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-scrollbar-thumb-hover);
+}
+
+#main-content::-webkit-scrollbar-button {
+    display: none;
+}

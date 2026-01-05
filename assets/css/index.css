@@ -1,0 +1,43 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    font-size: 15px;
+}
+
+#app {
+    display: flex;
+    height: 100vh;
+}
+
+ul, ol {
+    margin: 0;
+    padding-left: 20px;
+}
+
+ol > li {
+    margin: 0;
+    padding-left: 20px;
+}
+
+a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+}
+
+a:visited {
+    color: var(--color-text-primary);
+}
+
+a:hover {
+    text-decoration: underline;
+}

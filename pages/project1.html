@@ -1,0 +1,158 @@
+<div class="chat-area">
+    <div class="chat-bubble user">연구 요약</div>
+    <div class="chat-bubble ai">
+        긴 답변이 필요한 질의응답 과제에서 검색된 다수의 문서를 디코더 단계에서 종합하여 우수한 품질의 답변을 생성하는 <strong>FiD(Fusion in Decoder) 모델의 추론 속도를 높이기 위해 동적 토큰 프루닝 기법을 제안한 연구</strong>입니다.
+        인코더 단계에서 답변 생성에 기여도가 낮은 토큰을 식별해 제거함으로써 <strong>디코더의 크로스 어텐션 연산량을 감소</strong>시켜, LFQA 벤치마크에서 답변 품질을 보존하면서 <strong>추론 속도를 최대 1.74배까지 향상시켰으며 GPU 사용량은 80% 절감하는 성과</strong>를 거두었습니다.
+        <ul>
+            <li>Paper: <a href="https://doi.org/10.3390/math13142231" target="_blank">https://doi.org/10.3390/math13142231</a></li>
+            <li>Code: <a href="https://github.com/kws9208/dynamic_token_pruning" target="_blank">https://github.com/kws9208/dynamic_token_pruning</a></li>
+        </ul>
+    </div>
+
+    <div class="chat-bubble user">연구 배경 및 문제 정의</div>
+    <div class="chat-bubble ai">
+        오픈 도메인 질의응답에서 다중 문서 정보를 통합하는 FiD(Fusion-in-Decoder) 모델은 우수한 성능을 보입니다.
+        하지만 FiD 모델의 디코더의 교차 주의(Cross-attention) 연산량은 <span class="highlight-red">입력 문서(𝐾𝑁)</span>와 <span class="highlight-red">답변의 길이(𝑇≪𝐾𝑁)</span>에 비례하여 증가합니다.
+        특히, 긴 답변이 필요한 Long-Form QA 상황에서 기하급수적으로 증가하여 추론 속도가 느려지는 문제점이 있습니다.
+        <p>
+        \begin{equation}
+            {\mathrm{FLOPs}_{FiD} =}
+            \underbrace{\mathcal{O}\bigl(L_e K N^{2} d\bigr)}_{\text{encoder self-attention}}
+            \;+\; 
+            \underbrace{\mathcal{O}\bigl(L_d T^{2} d\bigr)}_{\text{decoder self-attention}}
+            \;+\; 
+            \underbrace{\mathcal{O}\bigl(L_d \textcolor{red}{T K N} d\bigr)}_{\textcolor{red}{decoder cross-attention}}
+        \end{equation}
+        </p>      
+    </div>
+    <div class="chat-bubble user">과제 및 제안 방법</div>
+    <div class="chat-bubble ai">
+        연구 목표는 답변 품질 저하를 최소화하면서, 디코더로 전달되는 정보량(<span class="highlight-red">𝐾𝑁</span>)을 줄여 FiD 모델의 추론 속도를 가속화하고 메모리 효율성을 높이는 것입니다.
+        이를 위해, FiD 모델의 인코더 단계에서 정답을 예측하는데 불필요한 토큰들을 미리 식별해 제거하여 크로스 어텐션의 Key, Value의 길이(𝐾𝑁)의 길이를 줄임으로써 추론 시간을 단축하는 <strong>동적 토큰 프루닝(Dynamic Token Pruning)</strong>을 제안합니다.
+    </div>
+    <img src="./img/research/project1-overview_.png"/>
+
+    <div class="chat-bubble user">구체적 구현 방법</div>
+    <div class="chat-bubble ai">
+        FiD 모델의 인코더 각 레이어 마지막에 <strong>토큰의 중요도를 예측하는 프루닝 네트워크</strong>를 삽입합니다. 이 네트워크는 토큰의 숨겨진 상태(Hidden States)와 어텐션 점수(Attention Scores)를 활용하여 각 토큰의 유지 여부를 결정하며, <strong>누적 마스크(𝑀)</strong>를 적용하여 이전 레이엉에서 제거된 토큰이 다시 활성화되지 않도록 했습니다.<br/>
+        토큰 제거는 이산적인 결정이므로, <strong>Gumbel-Softmax</strong> 기법을 활용하여 미분 가능하도록 설계했습니다. 학습 과정은 다음 세가지 목표를 동시에 최적화합니다.
+        <p>
+            <ol>
+                <li>
+                    정답 생성 품질 유지: Cross-Entropy 기반 주어진 문맥에 대한 답변을 생성하는 기본적인 <strong>LM Loss</strong>를 학습합니다.
+                </li>
+                    \begin{equation}
+                        \mathcal{L}_{\text{KL}} = D_{\text{KL}}(디코더 어텐션 점수 || BOS 어텐션 점수)
+                    \end{equation}
+                <li>
+                    프루닝 비율 제어: 추론 속도 가속화를 위해 과도한 토큰 제거나 유지를 방지하고자 레이어별 목표 토큰 유지 비율을 설정하여 <strong>실제 토큰 유지 비율과 목표 비율 간의 MSE Loss</strong>를 학습합니다.<br/>
+                </li>
+                    \begin{equation}
+                        \mathcal{L}_{\text{QA}} = -\sum \log P(답변 \mid 문맥)
+                    \end{equation}
+                <li>
+                    중요 정보 보존: 인코더의 마지막 레이어에서 BOS 토큰을 모방하는 프루닝 네트워크를 추가하여 정답 생성에 필요한 토큰들이 보존되도록 하였습니다. 이를 위해 <strong>BOS 토큰의 크로스 어텐션 점수와 마지막 프루닝 네트워크의 어텐션 점수에 대해 KL Loss</strong>를 학습합니다.    
+                </li>
+                    \begin{equation}
+                        \mathcal{L}_{\text{rate}} = MSE(목표 비율, 실제 비율)
+                    \end{equation}
+            </ol>
+            최종적으로 <strong>Pruning Rate Loss, Cross-Attention Alignment Loss, 그리고 LM Loss를 가중합한 손실 함수</strong>를 설계하여 <strong>End-to-End 학습</strong>이 가능하도록 구현했습니다.    
+                
+            \begin{equation}
+                \mathcal{L}_{\text{total}} = \mathcal{L}_{\text{QA}} + \lambda_{\text{rate}} \mathcal{L}_{\text{rate}} + \lambda_{\text{KL}} \mathcal{L}_{\text{KL}}
+            \end{equation}
+        </p>
+    </div>
+    <img src="./img/research/project1-architecture_.png"/>
+
+    <div class="chat-bubble user">실험 결과 및 분석</div>
+    <div class="chat-bubble ai">
+        아래 표는 제안한 방법론과 기존 방법론들의 성능 비교를 나타냅니다.
+        제안 방법론은 ASQA 및 CLAPNQ 데이터셋에서 약 12% 정도의 토큰만 유지시키고 FiD 모델과 <strong>유사한 성능을 유지하면서도 추론 속도를 크게 향상</strong>시켰습니다.
+        또한, 다른 FiD 효율화 연구와 비교했을 때 <strong>답변 품질 저하가 가장 낮으며</strong> 비슷한 추론 속도 향상을 얻어냈습니다. 그리고 본 방법은 단답형 감독 데이터에 의존하지 않고 <strong>엔드투엔드 방식으로 훈련</strong>될 수 있습니다.
+
+        <div class="table-container">
+            <table class="academic-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2">Model</th>
+                        <th colspan="4">ASQA</th>
+                        <th colspan="4">CLAPNQ</th>
+                    </tr>
+                    <tr>
+                        <th>답변 품질<br/>(Rouge-L)</th>
+                        <th>추론 <br/>속도</th>
+                        <th>최대 GPU <br/>사용량</th>
+                        <th>토큰 <br/>유지율</th>
+                        
+                        <th>답변 품질<br/>(Rouge-L)</th>
+                        <th>추론 <br/>속도</th>
+                        <th>최대 GPU <br/>사용량</th>
+                        <th>토큰 <br/>유지율</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>FiD (Baseline)</td>
+                        
+                        <td>34.45</td>
+                        <td>1.00x</td>
+                        <td>11.44 GB</td>
+                        <td>100%</td>
+                        
+                        <td><strong>27.68</strong></td>
+                        <td>1.00x</td>
+                        <td>11.40 GB</td>
+                        <td>100%</td>
+                    </tr>
+                    <tr>
+                        <td>FastFiD</td>
+                        
+                        <td>34.39</td>
+                        <td><strong>1.74x</strong></td>
+                        <td>3.93 GB</td>
+                        <td><strong>8.23%</strong></td>
+                        
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>Token Elimination</td>
+                        
+                        <td>30.65</td>
+                        <td>1.62x</td>
+                        <td>6.80 GB</td>
+                        <td>10.00%</td>
+                        
+                        <td>20.37</td>
+                        <td><strong>1.93x</strong></td>
+                        <td>6.80 GB</td>
+                        <td><strong>10.00%</strong></td>
+                    </tr>
+                    <tr class="ours-row">
+                        <td><strong>Ours (제안 모델)</strong></td>
+                        
+                        <td><strong>34.75</strong></td>
+                        <td>1.71x</td>
+                        <td><strong>2.39 GB</strong></td>
+                        <td>13.06%</td>
+                        
+                        <td>27.46</td>
+                        <td>1.74x</td>
+                        <td><strong>2.23 GB</strong></td>
+                        <td>11.52%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="table-caption">Table 1: Results of Long-Form QA experiments</div>
+    </div>
+    <div class="chat-bubble user">결론 및 향후 연구 방향</div>
+    <div class="chat-bubble ai">
+        동적 프루닝을 도입하여 <strong>FiD 모델의 디코더 연산 병목을 해결</strong>했습니다. 전체 토큰의 약 12~13%만 남기고도 답변 품질 저하를 0.2% 미만으로 방어했으며, 이를 통해 <strong>추론 속도를 최대 1.74배 향상</strong>시켰습니다.
+        또한, <strong>GPU 메모리 사용량을 기존 대비 1/5 수준으로 절감</strong>하여 제한된 자원 내 처리량(Throughput)을 최적화했습니다. 이 기법은 T5뿐만 아니라 Transformer 기반의 모든 모델에 호환되므로, 긴 문맥 처리가 필수적인 다중 문서 요약이나 멀티턴 대화 생성 등 <strong>다양한 생성 태스크의 효율화 기술로 확장</strong>될 수 있습니다.
+    </div>
+</div>

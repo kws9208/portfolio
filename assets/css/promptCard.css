@@ -1,0 +1,35 @@
+.prompt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 10px;
+    width: 95%;
+}
+
+.prompt-card {
+    display: block;
+    background-color: var(--color-surface-2);
+    border: none;
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: var(--color-text-primary);
+}
+
+.prompt-card:hover { 
+    background-color: var(--color-surface-hover);
+    color: var(--color-text-primary);
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.prompt-card strong {
+    font-size: 1.0em;
+    color: var(--color-text-primary);
+}
+
+.prompt-card span {
+    display: block;
+    font-size: 0.85em;
+    color: var(--color-text-secondary);
+    margin-top: 5px;
+}

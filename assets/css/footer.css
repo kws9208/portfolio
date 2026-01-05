@@ -1,0 +1,78 @@
+.main-footer {
+  flex-shrink: 0;
+  padding: 0 64px 20px 64px;
+  box-sizing: border-box;
+  text-align: center;
+  height: 56px;
+  margin-bottom: 50px;
+  bottom: 0;
+}
+
+.chat-input-box {
+  height: 56px;
+  flex-shrink: 0;
+  margin: 0 78px 0 78px;
+  box-sizing: border-box;
+}
+
+.chat-input {
+  height: 100%;
+  background-color: var(--color-surface-2);
+  border-radius: 40px;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  max-width: 768px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.chat-input .placeholder .plus-icon {
+  font-size: 24px;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.chat-input .placeholder .plus-icon:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.chat-input .placeholder {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  padding: 10px;
+}
+
+.chat-input .send-icon {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.chat-input .send-icon:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.disclaimer {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  margin: 10px;
+}
